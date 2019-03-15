@@ -1,0 +1,16 @@
+name: Navigator
+version: 1.0
+author: Saith
+main: de.mcharvest.saith.Main
+commands:
+  location:
+permissions:
+  navigator.destination.set:
+    default: op
+  navigator.destination.add:
+    default: op
+  navigator.*:
+    default: op
+    children:
+      navigator.destination.set: true
+      navigator.destination.add: true
