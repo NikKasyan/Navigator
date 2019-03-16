@@ -1,18 +1,22 @@
 package de.mcharvest.saith;
 
 import de.mcharvest.saith.commands.DestinationCommand;
-import de.mcharvest.saith.nav.DestinationManager;
+import de.mcharvest.saith.nav.Navigator;
+import de.mcharvest.saith.nav.destination.DestinationManager;
+import de.mcharvest.saith.nav.destination.IDestinationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
     private static Main INSTANCE;
-    private final DestinationManager destinationManager = new DestinationManager("plugins/Navigator/");
+    private final IDestinationManager destinationManager = new DestinationManager("plugins/Navigator/");
+    private Navigator navigator;
     private String prefix = "[Navigator]";
 
     @Override
     public void onEnable() {
         INSTANCE = this;
+        navigator = new Navigator(destinationManager.getAllLocations());
         addDefaultsToConfig();
         registerCommands();
     }
@@ -30,7 +34,10 @@ public class Main extends JavaPlugin {
         return INSTANCE;
     }
 
-    public DestinationManager getDestinationManager() {
+    public IDestinationManager getDestinationManager() {
         return destinationManager;
+    }
+    public Navigator getNavigator(){
+        return navigator;
     }
 }

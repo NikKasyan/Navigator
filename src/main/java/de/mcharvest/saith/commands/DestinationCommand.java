@@ -1,16 +1,18 @@
 package de.mcharvest.saith.commands;
 
 import de.mcharvest.saith.Main;
-import de.mcharvest.saith.nav.DestinationManager;
+import de.mcharvest.saith.nav.Navigator;
+import de.mcharvest.saith.nav.PathVisualizer;
+import de.mcharvest.saith.nav.destination.IDestinationManager;
+import de.mcharvest.saith.nav.dijkstra.Vertex;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.IOException;
-
 public class DestinationCommand implements CommandExecutor {
-    private DestinationManager destinationManager = Main.getInstance().getDestinationManager();
+    private IDestinationManager destinationManager = Main.getInstance().getDestinationManager();
 
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
         if (commandSender instanceof Player) {
@@ -26,6 +28,19 @@ public class DestinationCommand implements CommandExecutor {
             } else if (args[0].equalsIgnoreCase("add")) {
                 if (p.hasPermission("navgator.destination.add")) {
                     addCheckpoint(p, args);
+                }
+            } else if (args[0].equalsIgnoreCase("find")) {
+                if (p.hasPermission("navgator.destination.find")) {
+                    showRoute(p, args);
+
+                }
+            } else if (args[0].equalsIgnoreCase("ride")) {
+                if (p.hasPermission("navigator.destination.ride")) {
+
+                }
+            } else if (args[0].equalsIgnoreCase("show")) {
+                if (p.hasPermission("navigator.destination.show")) {
+                    Main.getInstance().getNavigator().showGraphToPlayer(p);
                 }
             }
 
@@ -47,12 +62,7 @@ public class DestinationCommand implements CommandExecutor {
             if (destinationManager.destinationExists(destinationName)) {
                 p.sendMessage("§4Destination already exists.");
             } else {
-                try {
-                    destinationManager.createNewDestination(destinationName, p.getLocation());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                destinationManager.createNewDestination(destinationName, p.getLocation());
                 p.sendMessage("§aDestination successfully set.");
             }
         } else {
@@ -61,13 +71,51 @@ public class DestinationCommand implements CommandExecutor {
     }
 
     private void addCheckpoint(Player p, String[] args) {
-        try {
+        if (destinationManager.checkPointExists(p.getLocation())) {
+            p.sendMessage("§4Checkpoint already exists.");
+        } else {
             destinationManager.createNewCheckPoint(p.getLocation());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            p.sendMessage("§aCheckpoint successfully set.");
         }
-        p.sendMessage("§aCheckpoint successfully set.");
 
+    }
+
+    private void showRoute(Player p, String[] args) {
+        if (args.length == 2) {
+            String destinationName = args[1];
+
+            if (!destinationManager.destinationExists(destinationName)) {
+                p.sendMessage("§4Destination doesn't exists.");
+            } else {
+                Vertex[] path = getPath(p, destinationName);
+                PathVisualizer.showGraphToPlayer(p, path);
+            }
+        } else {
+            sendUsage(p);
+        }
+    }
+
+    private void ridePigToDestination(Player p, String[] args) {
+        if (args.length == 2) {
+            String destinationName = args[1];
+
+            if (!destinationManager.destinationExists(destinationName)) {
+                p.sendMessage("§4Destination doesn't exists.");
+            } else {
+                Vertex[] path = getPath(p, destinationName);
+
+            }
+        } else {
+            sendUsage(p);
+        }
+    }
+
+    private Vertex[] getPath(Player p, String destinationName) {
+        Location destination = destinationManager.getDestinationLocation(destinationName);
+        Vertex[] path = Main.getInstance().getNavigator().findShortestPath(p.getLocation(), destination);
+        if (path == null) {
+            p.sendMessage("§4Sorry. But I couldnt find a path to your desired destination.");
+        }
+        return path;
     }
 }

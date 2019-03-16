@@ -9,8 +9,11 @@ permissions:
     default: op
   navigator.destination.add:
     default: op
+  navigator.destination.find:
+    default: op
   navigator.*:
     default: op
     children:
       navigator.destination.set: true
       navigator.destination.add: true
+      navigator.destination.find: true
