@@ -13,4 +13,5 @@ public interface IDestinationManager {
     Location[] getDestinations();
     Location[] getAllLocations();
     Location getDestinationLocation(String destinationName);
+    String[] getDestinationsName();
 }

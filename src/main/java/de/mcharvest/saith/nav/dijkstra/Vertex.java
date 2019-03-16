@@ -1,6 +1,5 @@
 package de.mcharvest.saith.nav.dijkstra;
 
-import de.mcharvest.saith.nav.destination.DestinationManager;
 import org.bukkit.Location;
 
 public class Vertex {

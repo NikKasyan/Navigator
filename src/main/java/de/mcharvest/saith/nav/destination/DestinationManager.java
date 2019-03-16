@@ -51,17 +51,17 @@ public class DestinationManager implements IDestinationManager {
 
     public Location[] getCheckpoints() {
         File checkpointDir = new File(defaultDir + "/Checkpoints/");
-        return getLocations(checkpointDir);
+        return getLocationsInDir(checkpointDir);
     }
 
     public Location[] getDestinations() {
-        File checkpointDir = new File(defaultDir + "/Destinations/");
-        return getLocations(checkpointDir);
+        File destinationDir = new File(defaultDir + "/Destinations/");
+        return getLocationsInDir(destinationDir);
     }
 
-    private Location[] getLocations(File checkpointDir) {
+    private Location[] getLocationsInDir(File dir) {
         ArrayList<Location> locations = new ArrayList<>();
-        for (File checkPointFile : checkpointDir.listFiles()) {
+        for (File checkPointFile : dir.listFiles()) {
             locations.add(getLocation(checkPointFile));
         }
         return locations.toArray(Location[]::new);
@@ -85,6 +85,12 @@ public class DestinationManager implements IDestinationManager {
     public Location getDestinationLocation(String destinationName) {
         File destinationFile = getDestinationFile(destinationName);
         return getLocation(destinationFile);
+    }
+
+    @Override
+    public String[] getDestinationsName() {
+        File destinationDir = new File(defaultDir + "/Destinations/");
+        return destinationDir.list();
     }
 
     private void createLocationYml(File ymlFile, Location loc) throws IOException {

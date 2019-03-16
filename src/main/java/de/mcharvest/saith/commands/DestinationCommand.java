@@ -11,6 +11,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.stream.Stream;
+
 public class DestinationCommand implements CommandExecutor {
     private IDestinationManager destinationManager = Main.getInstance().getDestinationManager();
 
@@ -42,6 +44,10 @@ public class DestinationCommand implements CommandExecutor {
                 if (p.hasPermission("navigator.destination.show")) {
                     Main.getInstance().getNavigator().showGraphToPlayer(p);
                 }
+            } else if(args[0].equalsIgnoreCase("list")){
+                if(p.hasPermission("navigator.destination.list")){
+                    Stream.of(destinationManager.getDestinationsName()).forEach(p::sendMessage);
+                }
             }
 
         }
@@ -51,7 +57,7 @@ public class DestinationCommand implements CommandExecutor {
     //TODO
     //Sends the player a message how to use the command.
     private void sendUsage(Player p) {
-        p.sendMessage("");
+        p.sendMessage("Newds");
     }
 
     //Creates a new Location if it doesn't exist
@@ -88,6 +94,10 @@ public class DestinationCommand implements CommandExecutor {
                 p.sendMessage("§4Destination doesn't exists.");
             } else {
                 Vertex[] path = getPath(p, destinationName);
+                if(path == null){
+                    p.sendMessage("§4Sorry. But I couldnt find a path to your desired destination.");
+                    return;
+                }
                 PathVisualizer.showGraphToPlayer(p, path);
             }
         } else {
@@ -103,7 +113,11 @@ public class DestinationCommand implements CommandExecutor {
                 p.sendMessage("§4Destination doesn't exists.");
             } else {
                 Vertex[] path = getPath(p, destinationName);
-
+                if(path == null){
+                    p.sendMessage("§4Sorry. But I couldnt find a path to your desired destination.");
+                    return;
+                }
+                //Todo: Implement Riding pig
             }
         } else {
             sendUsage(p);
@@ -114,7 +128,8 @@ public class DestinationCommand implements CommandExecutor {
         Location destination = destinationManager.getDestinationLocation(destinationName);
         Vertex[] path = Main.getInstance().getNavigator().findShortestPath(p.getLocation(), destination);
         if (path == null) {
-            p.sendMessage("§4Sorry. But I couldnt find a path to your desired destination.");
+
+            return null;
         }
         return path;
     }

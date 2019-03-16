@@ -1,7 +1,10 @@
 package de.mcharvest.saith.nav;
 
+import com.mysql.fabric.xmlrpc.base.Array;
 import de.mcharvest.saith.Main;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -26,12 +29,14 @@ public class PathVisualizer {
                 int closest = getClosestCheckpointIndex(p.getLocation(), vertices);
                 if (vertices.get(closest).getLocation().distance(p.getLocation()) <= 3) {
                     vertices.remove(vertices.get(closest));
-
                 }
                 drawLineForPlayer(p, vertices.get(closest).getLocation(), p.getLocation(), 0.1);
                 drawPathToVertices(vertices,p,adjacencyMatrix);
+               sendDistanceInfo(p,vertices);
+
             } catch (IndexOutOfBoundsException e) {
-                p.sendMessage("§aYou have arrived at your destination.");
+              arrivedAtDestination(p);
+              p.spigot().sendMessage(ChatMessageType.ACTION_BAR,TextComponent.fromLegacyText(""));
                 Bukkit.getScheduler().cancelTask(tasks.get(p));
             }
 
@@ -39,6 +44,21 @@ public class PathVisualizer {
         tasks.put(p, task);
     }
 
+    private static void sendDistanceInfo(Player p, ArrayList<Vertex> vertices){
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("§aDistance %.2fm",getDistance(p,vertices))));
+
+    }
+    private static double getDistance(Player p, ArrayList<Vertex> vertices){
+        double sum = 0;
+        for(int i = 1; i < vertices.size()-1; i++){
+            sum+= vertices.get(i).getLocation().distance(vertices.get(i+1).getLocation());
+        }
+        sum += p.getLocation().distance(vertices.get(0).getLocation());
+        return sum;
+    }
+    private static void arrivedAtDestination(Player p){
+        p.sendMessage("§aYou have arrived at your destination.");
+    }
     //Draws the path to the different Vertices
     private static void drawPathToVertices(ArrayList<Vertex> vertices, Player p, boolean[][] adjacencyMatrix){
         for (int i = 0; i < vertices.size(); i++)
@@ -80,7 +100,7 @@ public class PathVisualizer {
         double length = 0;
         for (; length < distance; p1.add(vector)) {
             Particle.DustOptions options = new Particle.DustOptions(Color.BLUE, 0.5f);
-            p.spawnParticle(Particle.REDSTONE, p1.getX(), p.getLocation().getY() + 1, p1.getZ(), 1, options);
+            p.spawnParticle(Particle.REDSTONE, p1.getX(), p1.getY() + 1, p1.getZ(), 1, options);
             length += space;
         }
     }
