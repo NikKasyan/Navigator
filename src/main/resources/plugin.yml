@@ -17,6 +17,10 @@ permissions:
     default: op
   navigator.destination.ride:
     default: op
+  navigator.destination.reload:
+    default: op
+  navigator.destination.show:
+    default: op
   navigator.*:
     default: op
     children:
@@ -26,3 +30,5 @@ permissions:
       navigator.destination.remove: true
       navigator.destination.ride: true
       navigator.destination.create: true
+      navigator.destination.reload: true
+      navigator.destination.show: true
