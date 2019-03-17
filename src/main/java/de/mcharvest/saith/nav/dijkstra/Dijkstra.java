@@ -5,8 +5,9 @@ import org.bukkit.Location;
 
 import java.util.*;
 
+//The implementation of the Dijkstra-Algorithm() is a customized
+//version from this Github: https://github.com/vogellacompany/codeexamples-java/tree/master/de.vogella.algorithms.dijkstra
 public class Dijkstra {
-
 
     private final List<Edge> edges;
     private Set<Vertex> settledNodes;
@@ -19,7 +20,9 @@ public class Dijkstra {
         predecessors = new HashMap<>();
     }
 
-
+    //Calculates all shortest Paths from one source vertex
+    //to every other vertex in the "Graph"
+    //(Technically we don't have a Graph because they consist explicitly of Vertices and Edges)
     public void execute(Vertex source) {
         settledNodes = new HashSet<>();
         unsettledNodes = new HashSet<>();
@@ -88,6 +91,7 @@ public class Dijkstra {
     }
 
 
+    //Checks if the given vertex is settled
     private boolean isSettled(Vertex vertex) {
         return settledNodes.contains(vertex);
     }

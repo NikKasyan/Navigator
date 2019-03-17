@@ -6,12 +6,10 @@ import de.mcharvest.saith.nav.dijkstra.Edge;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 //Wrapper for Dijkstra Algorithm
@@ -36,9 +34,15 @@ public class Navigator {
         }
         this.adjacencyMatrix = generateAdjacencyMatrix(this.checkpoints, maxDistanceBetweenCheckpoints);
         this.distanceMatrix = generateDistanceMatrix();
-        this.edges = getEdgesFromAdjacentsMatrix();
+        this.edges = getEdgesFromAdjacentMatrix();
     }
 
+    //This Method implements what happens during the time
+    //the Player travels the given path(if the player is close enough to a vertex it is removed from the path)
+    //The duringTravel Consumer gets the changing Path and the adjacency matrix
+    //This consumer implements what happens during the Travel time(path)
+    //The Runnable arrivedAtDestination executes when the Player arrives at his destination
+    //Implementations are found at de.mcharvest.saith.nav.PathVisualizer
     public static void showPathToTravel(Player p,
                                         Vertex[] path,
                                         BiConsumer<ArrayList<Vertex>, boolean[][]> duringTravel,
@@ -75,7 +79,7 @@ public class Navigator {
 
 
     /*
-     * Finds the shortest Route from one Vertex to another
+     * Finds the shortest Route(Array of adjacent Vertices) from one Vertex to another
      * using the Dijkstra Algorithm
      * */
     private Vertex[] findShortestRoute(int closestCheckpointIndex, Location destination) {
@@ -126,12 +130,21 @@ public class Navigator {
         return distanceMatrix;
     }
 
+    //Show the connected Vertices in one Graph.
     public void showGraphToPlayer(Player p) {
         PathVisualizer.showGraphToPlayer(p, checkpoints);
     }
+    public void showBlockGraphToPlayer(Player p, Location[] destinations, Location[] checkpoints){
+        for(Location loc:destinations){
+            p.sendBlockChange(loc, Material.DIAMOND_BLOCK.createBlockData());
+        }
+        for(Location loc:checkpoints){
+            p.sendBlockChange(loc, Material.GOLD_BLOCK.createBlockData());
+        }
+    }
 
 
-    private List<Edge> getEdgesFromAdjacentsMatrix() {
+    private List<Edge> getEdgesFromAdjacentMatrix() {
         ArrayList<Edge> edges = new ArrayList<>();
         for (int i = 0; i < checkpoints.length; i++)
             for (int j = i + 1; j < checkpoints.length; j++) {
@@ -144,17 +157,9 @@ public class Navigator {
     }
 
     private int getClosestCheckPointIndex(Location loc) {
-        int closestLocationIndex = -1;
-        double smallestDistance = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < checkpoints.length; i++) {
-            Location checkpoint = checkpoints[i].getLocation();
-            double currentDistance = loc.distance(checkpoint);
-            if (currentDistance < smallestDistance) {
-                smallestDistance = currentDistance;
-                closestLocationIndex = i;
-            }
-        }
-        return closestLocationIndex;
+        ArrayList<Vertex> vertices = new ArrayList<>();
+        Collections.addAll(vertices,checkpoints);
+       return getClosestCheckpointIndex(loc, vertices);
     }
 
     public static int getClosestCheckpointIndex(Location loc, ArrayList<Vertex> checkpoints) {

@@ -1,25 +1,25 @@
 package de.mcharvest.saith;
 
 import de.mcharvest.saith.commands.DestinationCommand;
+import de.mcharvest.saith.config.NavigatorConfig;
 import de.mcharvest.saith.listeners.CheckPointListener;
 import de.mcharvest.saith.nav.NavigationManager;
 import de.mcharvest.saith.nav.destination.DestinationManager;
 import de.mcharvest.saith.nav.destination.IDestinationManager;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NavigatorPlugin extends JavaPlugin {
 
     private static NavigatorPlugin INSTANCE;
     private final IDestinationManager destinationManager = new DestinationManager("plugins/Navigator/");
+    private static NavigatorConfig config;
     private NavigationManager navigationManager;
-    private String prefix = "[Navigator]";
 
     @Override
     public void onEnable() {
         INSTANCE = this;
         addDefaultsToConfig();
-        prefix = ChatColor.translateAlternateColorCodes('&',getConfig().getString("prefix",prefix));
+        config = new NavigatorConfig(getConfig());
         navigationManager = new NavigationManager(destinationManager);
         registerCommands();
         registerListeners();
@@ -35,6 +35,12 @@ public class NavigatorPlugin extends JavaPlugin {
         //getConfig().addDefault("messages.usage","/<command> [set|list]");
     }
 
+    @Override
+    public void reloadConfig() {
+        super.reloadConfig();
+        config = new NavigatorConfig(getConfig());
+    }
+
     private void registerCommands() {
         getCommand("destination").setExecutor(new DestinationCommand());
     }
@@ -44,7 +50,10 @@ public class NavigatorPlugin extends JavaPlugin {
     }
 
     public static String getPrefix(){
-        return getInstance().prefix;
+        return config.prefix;
+    }
+    public static NavigatorConfig getNavConfig(){
+        return config;
     }
     public IDestinationManager getDestinationManager() {
         return destinationManager;

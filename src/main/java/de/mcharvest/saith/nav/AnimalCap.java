@@ -10,8 +10,12 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 
+//This Class implements the ability to
+//ride an Entity over a certain Path to
+//a specific Location
 public class AnimalCap {
     private static HashMap<Player, Integer> tasks = new HashMap<>();
+
 
     public static void rideEntityToDestination(Player p, Vertex[] path, Class<? extends LivingEntity> entityClazz) {
         LivingEntity entity = p.getWorld().spawn(p.getLocation(), entityClazz);

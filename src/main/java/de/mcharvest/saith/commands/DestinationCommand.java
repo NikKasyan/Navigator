@@ -4,6 +4,7 @@ import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.listeners.CheckPointListener;
 import de.mcharvest.saith.nav.AnimalCap;
 import de.mcharvest.saith.nav.NavigationManager;
+import de.mcharvest.saith.nav.Navigator;
 import de.mcharvest.saith.nav.PathVisualizer;
 import de.mcharvest.saith.nav.destination.IDestinationManager;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
@@ -25,11 +26,15 @@ public class DestinationCommand implements CommandExecutor {
                 sendUsage(p);
                 return true;
             }
-            if(args[0].equalsIgnoreCase("remove")){
-                if(p.hasPermission("navigator.destination.remove")){
-                    remove(p,args);
+            if (args[0].equalsIgnoreCase("remove")) {
+                if (p.hasPermission("navigator.destination.remove")) {
+                    remove(p, args);
                 }
-            }else if (args[0].equalsIgnoreCase("create")) {
+            } else if (args[0].equalsIgnoreCase("reload")) {
+                if (p.hasPermission("navigator.destination.reload")) {
+                    reloadNavigationManager(p, args);
+                }
+            } else if (args[0].equalsIgnoreCase("create")) {
                 if (p.hasPermission("navigator.destination.create")) {
                     createMap(p, args);
                 }
@@ -39,7 +44,7 @@ public class DestinationCommand implements CommandExecutor {
                 }
             } else if (args[0].equalsIgnoreCase("add")) {
                 if (p.hasPermission("navgator.destination.add")) {
-                    checkPointAdd(p, args);
+                    checkPointEdit(p, args);
                 }
             } else if (args[0].equalsIgnoreCase("find") ||
                     args[0].equalsIgnoreCase("findblock")) {
@@ -52,7 +57,7 @@ public class DestinationCommand implements CommandExecutor {
                 }
             } else if (args[0].equalsIgnoreCase("show")) {
                 if (p.hasPermission("navigator.destination.show")) {
-                    // navigationManager.getNavigator("").showGraphToPlayer(p);
+                    showGrid(p, args);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 if (p.hasPermission("navigator.destination.list")) {
@@ -64,42 +69,82 @@ public class DestinationCommand implements CommandExecutor {
         return true;
     }
 
-    private void remove(Player p, String[] args) {
-        if(args.length >= 2){
+    private void showGrid(Player p, String[] args) {
+        if (args.length == 2) {
             String mapName = args[1];
-            if(!destinationManager.mapExists(mapName)){
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Map doesn't exists.");
+            if (!destinationManager.mapExists(mapName)) {
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map doesn't exists.");
                 return;
             }
-            if(args.length == 2){
-                destinationManager.removeMap(mapName);
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Map removed.");
+            navigationManager.getNavigator(mapName).
+                    showBlockGraphToPlayer(p,
+                            destinationManager.getDestinations(mapName),
+                            destinationManager.getCheckpoints(mapName));
+            p.sendMessage(NavigatorPlugin.getPrefix()+"§aThis is the Layout of your Map.");
+        }
+    }
 
-            }else if(args.length == 3){
+    private void reloadNavigationManager(Player p, String[] args) {
+        if (args.length == 1) {
+            navigationManager.reload();
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§aAll maps have been reloaded.");
+        } else if (args.length == 2) {
+            String mapName = args[1];
+            if (!destinationManager.mapExists(mapName)) {
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map doesn't exists.");
+                return;
+            }
+            navigationManager.reload(mapName);
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§aMap §6" + mapName + " §ahas been reloaded");
+        }
+    }
+
+    private void remove(Player p, String[] args) {
+        if (args.length >= 2) {
+            String mapName = args[1];
+            if (!destinationManager.mapExists(mapName)) {
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map doesn't exists.");
+                return;
+            }
+            if (args.length == 2) {
+                destinationManager.removeMap(mapName);
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map removed.");
+                if (NavigatorPlugin.getNavConfig().auto_reload) {
+                    reloadNavigationManager(p, args);
+                }
+
+            } else if (args.length == 3) {
                 String destinationName = args[2];
-                if(destinationManager.destinationExists(mapName,destinationName)){
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4Destination doesn't exists.");
-                }else{
-                    destinationManager.removeDestination(mapName,destinationName);
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4Destination removed.");
+                if (destinationManager.destinationExists(mapName, destinationName)) {
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Destination doesn't exists.");
+                } else {
+                    destinationManager.removeDestination(mapName, destinationName);
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Destination removed.");
+                    if (NavigatorPlugin.getNavConfig().auto_reload) {
+                        reloadNavigationManager(p, args);
+                    }
                 }
             }
         }
     }
 
 
-    private void checkPointAdd(Player p, String[] args) {
-        if (CheckPointListener.isInCheckpointAddMode(p)) {
-            CheckPointListener.disableCheckpointAddMode(p);
-            p.sendMessage(NavigatorPlugin.getPrefix()+"§4CheckPointAddMode disabled.");
+    private void checkPointEdit(Player p, String[] args) {
+        if (CheckPointListener.isInCheckpointEditMode(p)) {
+            CheckPointListener.disableCheckpointEditMode(p);
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§4CheckPointEditMode disabled.");
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§4All placed GoldBlocks have been removed.");
+            if (NavigatorPlugin.getNavConfig().auto_reload) {
+                reloadNavigationManager(p, args);
+            }
         } else {
             if (args.length == 2) {
                 String mapName = args[1];
                 if (!destinationManager.mapExists(mapName)) {
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4Map doesn't exists.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map doesn't exists.");
                 } else {
-                    CheckPointListener.enableCheckpointAddMode(p, mapName);
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§aCheckPointAddMode enabled.");
+                    CheckPointListener.enableCheckpointEditMode(p, mapName);
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§aCheckPointEditMode enabled.");
                 }
 
             }
@@ -110,10 +155,13 @@ public class DestinationCommand implements CommandExecutor {
         if (args.length == 2) {
             String mapName = args[1];
             if (destinationManager.mapExists(mapName)) {
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Map already exists.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map already exists.");
             } else {
                 destinationManager.createNewMap(mapName);
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§aMap successfully created.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§aMap successfully created.");
+                if (NavigatorPlugin.getNavConfig().auto_reload) {
+                    reloadNavigationManager(p, args);
+                }
             }
         }
     }
@@ -122,8 +170,8 @@ public class DestinationCommand implements CommandExecutor {
         if (args.length == 2) {
             String mapName = args[1];
             String[] destinations = destinationManager.getDestinationNames(mapName);
-            for(String destination:destinations){
-                p.sendMessage("- "+destination.substring(0,destination.length()-3));
+            for (String destination : destinations) {
+                p.sendMessage("- " + destination.substring(0, destination.length() - 4));
             }
         } else {
             sendUsage(p);
@@ -133,7 +181,7 @@ public class DestinationCommand implements CommandExecutor {
     //TODO
     //Sends the player a message how to use the command.
     private void sendUsage(Player p) {
-        p.sendMessage(NavigatorPlugin.getPrefix()+"§4Wrong command synthax.");
+        p.sendMessage(NavigatorPlugin.getPrefix() + "§4Wrong command syntax.");
     }
 
     //Creates a new Location if it doesn't exist
@@ -143,10 +191,13 @@ public class DestinationCommand implements CommandExecutor {
             String destinationName = args[2];
 
             if (destinationManager.destinationExists(mapName, destinationName)) {
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Destination already exists.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Destination already exists.");
             } else {
                 destinationManager.createNewDestination(mapName, destinationName, p.getLocation());
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§aDestination successfully set.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§aDestination successfully set.");
+                if (NavigatorPlugin.getNavConfig().auto_reload) {
+                    reloadNavigationManager(p, args);
+                }
             }
         } else {
             sendUsage(p);
@@ -160,12 +211,12 @@ public class DestinationCommand implements CommandExecutor {
             String destinationName = args[2];
 
             if (!destinationManager.destinationExists(mapName, destinationName)) {
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Destination doesn't exists.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Destination doesn't exists.");
             } else {
                 Vertex[] path = getPath(p, mapName, destinationName);
                 if (path == null) {
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4Sorry. But I couldnt find a path to your desired destination.");
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4The destination §6" + destinationName + " §4has insufficent checkpoints.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldnt find a path to your desired destination.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4The destination §6" + destinationName + " §4has insufficient checkpoints.");
                     return;
                 }
                 if (args[0].equalsIgnoreCase("find")) {
@@ -185,11 +236,11 @@ public class DestinationCommand implements CommandExecutor {
             String destinationName = args[2];
 
             if (!destinationManager.destinationExists(mapName, destinationName)) {
-                p.sendMessage(NavigatorPlugin.getPrefix()+"§4Destination doesn't exists.");
+                p.sendMessage(NavigatorPlugin.getPrefix() + "§4Destination doesn't exists.");
             } else {
                 Vertex[] path = getPath(p, mapName, destinationName);
                 if (path == null) {
-                    p.sendMessage(NavigatorPlugin.getPrefix()+"§4Sorry. But I couldnt find a path to your desired destination.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldnt find a path to your desired destination.");
                     return;
                 }
                 AnimalCap.rideEntityToDestination(p, path, Pig.class);
@@ -204,7 +255,6 @@ public class DestinationCommand implements CommandExecutor {
         Location destination = destinationManager.getDestinationLocation(mapName, destinationName);
         Vertex[] path = navigationManager.getNavigator(mapName).findShortestPath(p.getLocation(), destination);
         if (path == null) {
-
             return null;
         }
         return path;
