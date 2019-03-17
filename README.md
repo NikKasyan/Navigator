@@ -1,4 +1,4 @@
-# Navigatior
+# Navigator
 This plugin allows you to add a Navigation-Tool to your Server.
 
 ## Usage
