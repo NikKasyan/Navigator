@@ -22,6 +22,7 @@ public class CheckPointListener implements Listener {
     private static HashMap<Player, String> playersEditCheckpointMode = new HashMap<>();
     //Remembers the placedBlocks
     private static HashMap<Player, ArrayList<Block>> placedBlocks = new HashMap<>();
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player p = event.getPlayer();
@@ -42,7 +43,7 @@ public class CheckPointListener implements Listener {
             if (event.getBlock().getType() == Material.GOLD_BLOCK) {
                 removeCheckPoint(p, event.getBlock().getLocation());
                 ArrayList<Block> blocks = placedBlocks.get(p);
-                if(blocks != null){
+                if (blocks != null) {
                     blocks.remove(event.getBlock());
                 }
 
@@ -59,7 +60,7 @@ public class CheckPointListener implements Listener {
     public static void disableCheckpointEditMode(Player p) {
         playersEditCheckpointMode.remove(p);
 
-        for(Block block:placedBlocks.get(p)){
+        for (Block block : placedBlocks.get(p)) {
             block.setType(Material.AIR);
         }
         placedBlocks.remove(p);
@@ -72,19 +73,19 @@ public class CheckPointListener implements Listener {
     private void addCheckpoint(Player p, Location loc) {
         String mapName = playersEditCheckpointMode.get(p);
         if (destinationManager.checkPointExists(mapName, loc)) {
-            p.sendMessage(NavigatorPlugin.getPrefix()+"§4Checkpoint already exists.");
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§4Checkpoint already exists.");
         } else {
             destinationManager.createNewCheckPoint(mapName, loc);
-            p.sendMessage(NavigatorPlugin.getPrefix()+"§aCheckpoint successfully set.");
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§aCheckpoint successfully set.");
         }
     }
 
     private void removeCheckPoint(Player p, Location loc) {
         String mapName = playersEditCheckpointMode.get(p);
-        if(!destinationManager.checkPointExists(mapName,loc)){
+        if (!destinationManager.checkPointExists(mapName, loc)) {
             return;
         }
         destinationManager.removeCheckPoint(mapName, loc);
-        p.sendMessage(NavigatorPlugin.getPrefix()+"§aCheckpoint successfully removed.");
+        p.sendMessage(NavigatorPlugin.getPrefix() + "§aCheckpoint successfully removed.");
     }
 }

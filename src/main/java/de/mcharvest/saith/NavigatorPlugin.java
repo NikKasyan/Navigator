@@ -18,7 +18,7 @@ public class NavigatorPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         INSTANCE = this;
-        addDefaultsToConfig();
+        saveDefaultConfig();
         config = new NavigatorConfig(getConfig());
         navigationManager = new NavigationManager(destinationManager);
         registerCommands();
@@ -29,11 +29,6 @@ public class NavigatorPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CheckPointListener(), this);
     }
 
-    private void addDefaultsToConfig() {
-        getConfig().options().copyDefaults(true);
-        saveDefaultConfig();
-        //getConfig().addDefault("messages.usage","/<command> [set|list]");
-    }
 
     @Override
     public void reloadConfig() {
@@ -49,12 +44,14 @@ public class NavigatorPlugin extends JavaPlugin {
         return INSTANCE;
     }
 
-    public static String getPrefix(){
+    public static String getPrefix() {
         return config.prefix;
     }
-    public static NavigatorConfig getNavConfig(){
+
+    public static NavigatorConfig getNavConfig() {
         return config;
     }
+
     public IDestinationManager getDestinationManager() {
         return destinationManager;
     }
