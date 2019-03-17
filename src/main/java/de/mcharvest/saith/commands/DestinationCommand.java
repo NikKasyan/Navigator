@@ -27,7 +27,11 @@ public class DestinationCommand implements CommandExecutor {
                 sendUsage(p);
                 return true;
             }
-            if (args[0].equalsIgnoreCase("create")) {
+            if(args[0].equalsIgnoreCase("remove")){
+                if(p.hasPermission("navigator.destination.remove")){
+                    remove(p,args);
+                }
+            }else if (args[0].equalsIgnoreCase("create")) {
                 if (p.hasPermission("navigator.destination.create")) {
                     createMap(p, args);
                 }
@@ -60,6 +64,29 @@ public class DestinationCommand implements CommandExecutor {
 
         }
         return true;
+    }
+
+    private void remove(Player p, String[] args) {
+        if(args.length >= 2){
+            String mapName = args[1];
+            if(!destinationManager.mapExists(mapName)){
+                p.sendMessage(Main.getPrefix()+"§4Map doesn't exists.");
+                return;
+            }
+            if(args.length == 2){
+                destinationManager.removeMap(mapName);
+                p.sendMessage(Main.getPrefix()+"§4Map removed.");
+
+            }else if(args.length == 3){
+                String destinationName = args[2];
+                if(destinationManager.destinationExists(mapName,destinationName)){
+                    p.sendMessage(Main.getPrefix()+"§4Destination doesn't exists.");
+                }else{
+                    destinationManager.removeDestination(mapName,destinationName);
+                    p.sendMessage(Main.getPrefix()+"§4Destination removed.");
+                }
+            }
+        }
     }
 
 
@@ -96,7 +123,10 @@ public class DestinationCommand implements CommandExecutor {
     private void listDestinations(Player p, String[] args) {
         if (args.length == 2) {
             String mapName = args[1];
-            Stream.of(destinationManager.getDestinationNames(mapName)).forEach(p::sendMessage);
+            String[] destinations = destinationManager.getDestinationNames(mapName);
+            for(String destination:destinations){
+                p.sendMessage("- "+destination.substring(0,destination.length()-3));
+            }
         } else {
             sendUsage(p);
         }

@@ -1,5 +1,6 @@
 package de.mcharvest.saith.nav.destination;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -93,7 +94,11 @@ public class DestinationManager implements IDestinationManager {
     @Override
     public void removeMap(String mapName) {
         File mapDir = new File(defaultDir + "/" + mapName);
-        mapDir.delete();
+        try {
+            FileUtils.deleteDirectory(mapDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
