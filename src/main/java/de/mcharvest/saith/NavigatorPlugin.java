@@ -8,9 +8,9 @@ import de.mcharvest.saith.nav.destination.IDestinationManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+public class NavigatorPlugin extends JavaPlugin {
 
-    private static Main INSTANCE;
+    private static NavigatorPlugin INSTANCE;
     private final IDestinationManager destinationManager = new DestinationManager("plugins/Navigator/");
     private NavigationManager navigationManager;
     private String prefix = "[Navigator]";
@@ -39,7 +39,7 @@ public class Main extends JavaPlugin {
         getCommand("destination").setExecutor(new DestinationCommand());
     }
 
-    public static Main getInstance() {
+    public static NavigatorPlugin getInstance() {
         return INSTANCE;
     }
 

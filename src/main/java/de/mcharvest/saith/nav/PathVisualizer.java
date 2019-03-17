@@ -1,6 +1,6 @@
 package de.mcharvest.saith.nav;
 
-import de.mcharvest.saith.Main;
+import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -42,7 +42,7 @@ public class PathVisualizer {
     }
 
     private static void arrivedAtDestination(Player p) {
-        p.sendMessage(Main.getPrefix()+"§aYou have arrived at your destination.");
+        p.sendMessage(NavigatorPlugin.getPrefix()+"§aYou have arrived at your destination.");
     }
 
     //Draws the path to the different Vertices

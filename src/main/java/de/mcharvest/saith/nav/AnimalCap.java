@@ -1,6 +1,6 @@
 package de.mcharvest.saith.nav;
 
-import de.mcharvest.saith.Main;
+import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
 import net.minecraft.server.v1_13_R2.EntityInsentient;
 import org.bukkit.Location;
@@ -34,7 +34,7 @@ public class AnimalCap {
 
                 }, () -> {
                     entity.remove();
-                    p.sendMessage(Main.getPrefix()+"§aYou arrived at your destination.");
+                    p.sendMessage(NavigatorPlugin.getPrefix()+"§aYou arrived at your destination.");
                 });
             }
         }

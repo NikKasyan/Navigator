@@ -1,6 +1,6 @@
 package de.mcharvest.saith.listeners;
 
-import de.mcharvest.saith.Main;
+import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.nav.destination.IDestinationManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class CheckPointListener implements Listener {
 
-    private IDestinationManager destinationManager = Main.getInstance().getDestinationManager();
+    private IDestinationManager destinationManager = NavigatorPlugin.getInstance().getDestinationManager();
     private static HashMap<Player, String> playersAddCheckpointMode = new HashMap<>();
 
     @EventHandler
@@ -24,7 +24,7 @@ public class CheckPointListener implements Listener {
             if (event.getBlock().getType() == Material.GOLD_BLOCK) {
                 addCheckpoint(p, event.getBlock().getLocation());
             } else {
-                p.sendMessage(Main.getPrefix()+"§4You can't place blocks in CheckPointAddMode.");
+                p.sendMessage(NavigatorPlugin.getPrefix()+"§4You can't place blocks in CheckPointAddMode.");
                 event.setCancelled(true);
             }
         }
@@ -37,7 +37,7 @@ public class CheckPointListener implements Listener {
             if (event.getBlock().getType() == Material.GOLD_BLOCK) {
                 removeCheckPoint(p, event.getBlock().getLocation());
             } else {
-                p.sendMessage(Main.getPrefix()+"§4You can't break blocks in CheckPointAddMode.");
+                p.sendMessage(NavigatorPlugin.getPrefix()+"§4You can't break blocks in CheckPointAddMode.");
                 event.setCancelled(true);
             }
         }
@@ -58,16 +58,16 @@ public class CheckPointListener implements Listener {
     private void addCheckpoint(Player p, Location loc) {
         String mapName = playersAddCheckpointMode.get(p);
         if (destinationManager.checkPointExists(mapName, loc)) {
-            p.sendMessage(Main.getPrefix()+"§4Checkpoint already exists.");
+            p.sendMessage(NavigatorPlugin.getPrefix()+"§4Checkpoint already exists.");
         } else {
             destinationManager.createNewCheckPoint(mapName, loc);
-            p.sendMessage(Main.getPrefix()+"§aCheckpoint successfully set.");
+            p.sendMessage(NavigatorPlugin.getPrefix()+"§aCheckpoint successfully set.");
         }
     }
 
     private void removeCheckPoint(Player p, Location loc) {
         String mapName = playersAddCheckpointMode.get(p);
         destinationManager.removeCheckPoint(mapName, loc);
-        p.sendMessage(Main.getPrefix()+"§aCheckpoint successfully removed.");
+        p.sendMessage(NavigatorPlugin.getPrefix()+"§aCheckpoint successfully removed.");
     }
 }

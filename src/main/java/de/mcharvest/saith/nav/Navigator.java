@@ -1,6 +1,6 @@
 package de.mcharvest.saith.nav;
 
-import de.mcharvest.saith.Main;
+import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.nav.dijkstra.Dijkstra;
 import de.mcharvest.saith.nav.dijkstra.Edge;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
@@ -50,7 +50,7 @@ public class Navigator {
         }
         final ArrayList<Vertex> vertices = new ArrayList<>();
         Collections.addAll(vertices, path);
-        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), () -> {
+        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(NavigatorPlugin.getInstance(), () -> {
             try {
                 int closest = Navigator.getClosestCheckpointIndex(p.getLocation(), vertices);
                 if (vertices.get(closest).getLocation().distance(p.getLocation()) <= 2) {

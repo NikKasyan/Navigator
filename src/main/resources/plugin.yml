@@ -1,7 +1,7 @@
 name: Navigator
 version: 1.0
 author: Saith
-main: de.mcharvest.saith.Main
+main: de.mcharvest.saith.NavigatorPlugin
 commands:
   destination:
 permissions:
@@ -11,9 +11,18 @@ permissions:
     default: op
   navigator.destination.find:
     default: op
+  navigator.destination.create:
+    default: op
+  navigator.destination.remove:
+    default: op
+  navigator.destination.ride:
+    default: op
   navigator.*:
     default: op
     children:
       navigator.destination.set: true
       navigator.destination.add: true
       navigator.destination.find: true
+      navigator.destination.remove: true
+      navigator.destination.ride: true
+      navigator.destination.create: true
