@@ -1,7 +1,7 @@
-# Navigatior
+# Navigator
 This plugin allows you to add a Navigation-Tool to your Server.
 
-## How does it work?
+## Usage
 First of all you have to create a Map.
    ```
    /destination create <mapName>
@@ -52,3 +52,11 @@ or if you are lazy you can ride on a pig
 My advice is that you should place enough Checkpoints because if 
 the MaxDistanceBetweenPoints option is set to low the plugin might
 not find a path to your desired destination.
+## How does it work?
+You are wondering how my Plugin works.
+It is pretty easy.
+I simply convert the locations into vertices.
+Then I build an Adjacencymatrix of the vertices by collecting all vertices in a certain range of another vertex.
+Out of the Adjacencymatrix I can built a list of edges.
+Then I use the Dijkstra Algorithm to find the shortest path from a source vertex to every other vertex.
+And thats it.
