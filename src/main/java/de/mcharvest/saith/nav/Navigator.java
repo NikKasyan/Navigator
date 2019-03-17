@@ -1,13 +1,18 @@
 package de.mcharvest.saith.nav;
 
+import de.mcharvest.saith.Main;
 import de.mcharvest.saith.nav.dijkstra.Dijkstra;
 import de.mcharvest.saith.nav.dijkstra.Edge;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 //Wrapper for Dijkstra Algorithm
 public class Navigator {
@@ -18,16 +23,48 @@ public class Navigator {
     //Edges of all Vertices
     private List<Edge> edges;
     //Max Distance between two Vertices
-    private static double MAX_DISTANCE = 7;
+    private final double MAX_DISTANCE;
+    private static double MAX_DISTANCE_STATIC = 10;
+    private static HashMap<Player, Integer> tasks = new HashMap<>();
 
-    public Navigator(Location[] checkpoints) {
+    public Navigator(double maxDistanceBetweenCheckpoints, Location[] checkpoints) {
+        MAX_DISTANCE_STATIC = maxDistanceBetweenCheckpoints;
+        this.MAX_DISTANCE = maxDistanceBetweenCheckpoints;
         this.checkpoints = new Vertex[checkpoints.length];
         for (int i = 0; i < checkpoints.length; i++) {
             this.checkpoints[i] = new Vertex(checkpoints[i]);
         }
-        this.adjacencyMatrix = generateAdjacencyMatrix(this.checkpoints);
+        this.adjacencyMatrix = generateAdjacencyMatrix(this.checkpoints, maxDistanceBetweenCheckpoints);
         this.distanceMatrix = generateDistanceMatrix();
         this.edges = getEdgesFromAdjacentsMatrix();
+    }
+
+    public static void showPathToTravel(Player p,
+                                        Vertex[] path,
+                                        BiConsumer<ArrayList<Vertex>, boolean[][]> duringTravel,
+                                        Runnable arrivedAtDestination) {
+        final boolean[][] adjacencyMatrix = Navigator.generateAdjacencyMatrix(path, MAX_DISTANCE_STATIC);
+        int task;
+        if (tasks.get(p) != null) {
+            Bukkit.getScheduler().cancelTask(tasks.get(p));
+        }
+        final ArrayList<Vertex> vertices = new ArrayList<>();
+        Collections.addAll(vertices, path);
+        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), () -> {
+            try {
+                int closest = Navigator.getClosestCheckpointIndex(p.getLocation(), vertices);
+                if (vertices.get(closest).getLocation().distance(p.getLocation()) <= 2) {
+                    vertices.remove(vertices.get(closest));
+                }
+                duringTravel.accept(vertices, adjacencyMatrix);
+
+            } catch (IndexOutOfBoundsException e) {
+                arrivedAtDestination.run();
+                Bukkit.getScheduler().cancelTask(tasks.get(p));
+            }
+
+        }, 0, 10);
+        tasks.put(p, task);
     }
 
 
@@ -55,16 +92,16 @@ public class Navigator {
 
 
     //Generates the Adjacency matrix which indicates which Location are connected
-    //Goes through every checkpoint and if the distance between two are <= 8
+    //Goes through every checkpoint and if the distance between two are <= MAX_DISTANCE
     //these locations are connected
-    public static boolean[][] generateAdjacencyMatrix(Vertex[] checkpoints) {
+    public static boolean[][] generateAdjacencyMatrix(Vertex[] checkpoints, double maxDistanceBetweenBlocks) {
         boolean[][] adjacencyMatrix = new boolean[checkpoints.length][checkpoints.length];
         for (int i = 0; i < checkpoints.length; i++) {
             for (int j = i + 1; j < checkpoints.length; j++) {
                 Location loc1 = checkpoints[i].getLocation();
                 Location loc2 = checkpoints[j].getLocation();
                 double distanceBetweenblocks = loc1.distance(loc2);
-                if (distanceBetweenblocks <= MAX_DISTANCE) {
+                if (distanceBetweenblocks <= maxDistanceBetweenBlocks) {
                     adjacencyMatrix[j][i] = adjacencyMatrix[i][j] = true;
                 }
             }
@@ -94,7 +131,6 @@ public class Navigator {
     }
 
 
-
     private List<Edge> getEdgesFromAdjacentsMatrix() {
         ArrayList<Edge> edges = new ArrayList<>();
         for (int i = 0; i < checkpoints.length; i++)
@@ -119,5 +155,19 @@ public class Navigator {
             }
         }
         return closestLocationIndex;
+    }
+
+    public static int getClosestCheckpointIndex(Location loc, ArrayList<Vertex> checkpoints) {
+        int index = 0;
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < checkpoints.size(); i++) {
+            if (checkpoints.get(i) == null)
+                continue;
+            if (checkpoints.get(i).getLocation().distance(loc) < minimumDistance) {
+                minimumDistance = checkpoints.get(i).getLocation().distance(loc);
+                index = i;
+            }
+        }
+        return index;
     }
 }

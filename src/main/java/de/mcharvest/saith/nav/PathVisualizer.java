@@ -1,6 +1,5 @@
 package de.mcharvest.saith.nav;
 
-import com.mysql.fabric.xmlrpc.base.Array;
 import de.mcharvest.saith.Main;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
 import net.md_5.bungee.api.ChatMessageType;
@@ -10,57 +9,44 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class PathVisualizer {
     private static HashMap<Player, Integer> tasks = new HashMap<>();
 
-    public static void showGraphToPlayer(Player p, Vertex[] checkpoints/*, BiConsumer<ArrayList<Vertex>,Player> function*/){
-        final boolean[][] adjacencyMatrix = Navigator.generateAdjacencyMatrix(checkpoints);
-        int task;
-        if (tasks.get(p) != null) {
-            Bukkit.getScheduler().cancelTask(tasks.get(p));
-        }
-        final ArrayList<Vertex> vertices = new ArrayList<>();
-        Collections.addAll(vertices, checkpoints);
-        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), () -> {
-            try {
-                int closest = getClosestCheckpointIndex(p.getLocation(), vertices);
-                if (vertices.get(closest).getLocation().distance(p.getLocation()) <= 3) {
-                    vertices.remove(vertices.get(closest));
-                }
-                drawLineForPlayer(p, vertices.get(closest).getLocation(), p.getLocation(), 0.1);
-                drawPathToVertices(vertices,p,adjacencyMatrix);
-               sendDistanceInfo(p,vertices);
-
-            } catch (IndexOutOfBoundsException e) {
-              arrivedAtDestination(p);
-              p.spigot().sendMessage(ChatMessageType.ACTION_BAR,TextComponent.fromLegacyText(""));
-                Bukkit.getScheduler().cancelTask(tasks.get(p));
-            }
-
-        }, 0, 10);
-        tasks.put(p, task);
+    public static void showGraphToPlayer(Player p, Vertex[] path) {
+        Navigator.showPathToTravel(p, path, (vertices, adjacencyMatrix) -> {
+            int closest = Navigator.getClosestCheckpointIndex(p.getLocation(), vertices);
+            removeClosestVertexInRange(p.getLocation(),vertices,3);
+            drawLineForPlayer(p, vertices.get(closest).getLocation(), p.getLocation(), 0.1);
+            drawPathToVertices(vertices, p, adjacencyMatrix);
+            sendDistanceInfo(p, vertices);
+        }, () -> {
+            arrivedAtDestination(p);
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(""));
+        });
     }
 
-    private static void sendDistanceInfo(Player p, ArrayList<Vertex> vertices){
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("§aDistance %.2fm",getDistance(p,vertices))));
+    private static void sendDistanceInfo(Player p, ArrayList<Vertex> vertices) {
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("§aDistance %.2fm", getDistance(p, vertices))));
 
     }
-    private static double getDistance(Player p, ArrayList<Vertex> vertices){
+
+    private static double getDistance(Player p, ArrayList<Vertex> vertices) {
         double sum = 0;
-        for(int i = 1; i < vertices.size()-1; i++){
-            sum+= vertices.get(i).getLocation().distance(vertices.get(i+1).getLocation());
+        for (int i = 1; i < vertices.size() - 1; i++) {
+            sum += vertices.get(i).getLocation().distance(vertices.get(i + 1).getLocation());
         }
         sum += p.getLocation().distance(vertices.get(0).getLocation());
         return sum;
     }
-    private static void arrivedAtDestination(Player p){
-        p.sendMessage("§aYou have arrived at your destination.");
+
+    private static void arrivedAtDestination(Player p) {
+        p.sendMessage(Main.getPrefix()+"§aYou have arrived at your destination.");
     }
+
     //Draws the path to the different Vertices
-    private static void drawPathToVertices(ArrayList<Vertex> vertices, Player p, boolean[][] adjacencyMatrix){
+    private static void drawPathToVertices(ArrayList<Vertex> vertices, Player p, boolean[][] adjacencyMatrix) {
         for (int i = 0; i < vertices.size(); i++)
             for (int j = i + 1; j < vertices.size(); j++) {
                 if (adjacencyMatrix[i][j]) {
@@ -75,19 +61,7 @@ public class PathVisualizer {
                 }
             }
     }
-    private static int getClosestCheckpointIndex(Location loc, ArrayList<Vertex> checkpoints) {
-        int index = 0;
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < checkpoints.size(); i++) {
-            if (checkpoints.get(i) == null)
-                continue;
-            if (checkpoints.get(i).getLocation().distance(loc) < minimumDistance) {
-                minimumDistance = checkpoints.get(i).getLocation().distance(loc);
-                index = i;
-            }
-        }
-        return index;
-    }
+
 
     public static void drawLineForPlayer(Player p, Location point1, Location point2, double space) {
         point1 = point1.getBlock().getLocation().add(0.5, 0, 0.5);
@@ -105,4 +79,27 @@ public class PathVisualizer {
         }
     }
 
+    public static void showBlocksToPlayer(Player p, Vertex[] path) {
+
+        Navigator.showPathToTravel(p, path, (vertices, adjacencyMatrix) -> {
+            removeClosestVertexInRange(p.getLocation(),vertices,3);
+            for(Vertex vertex:path){
+                p.sendBlockChange(vertex.getLocation(),vertex.getLocation().getBlock().getBlockData());
+            }
+            for(Vertex vertex:vertices){
+                p.sendBlockChange(vertex.getLocation(), Material.DIAMOND_BLOCK.createBlockData());
+            }
+        }, () -> {
+            arrivedAtDestination(p);
+            for(Vertex vertex:path){
+                p.sendBlockChange(vertex.getLocation(),vertex.getLocation().getBlock().getBlockData());
+            }
+        });
+    }
+    private static void removeClosestVertexInRange(Location loc, ArrayList<Vertex> vertices, int range){
+        int closest = Navigator.getClosestCheckpointIndex(loc, vertices);
+        if (vertices.get(closest).getLocation().distance(loc) <= range) {
+            vertices.remove(vertices.get(closest));
+        }
+    }
 }

@@ -23,8 +23,8 @@ public class CheckPointListener implements Listener {
         if (playersAddCheckpointMode.containsKey(p)) {
             if (event.getBlock().getType() == Material.GOLD_BLOCK) {
                 addCheckpoint(p, event.getBlock().getLocation());
-            }else {
-                p.sendMessage("§4You can't place blocks in CheckPointAddMode.");
+            } else {
+                p.sendMessage(Main.getPrefix()+"§4You can't place blocks in CheckPointAddMode.");
                 event.setCancelled(true);
             }
         }
@@ -36,8 +36,8 @@ public class CheckPointListener implements Listener {
         if (playersAddCheckpointMode.containsKey(p)) {
             if (event.getBlock().getType() == Material.GOLD_BLOCK) {
                 removeCheckPoint(p, event.getBlock().getLocation());
-            }else{
-                p.sendMessage("§4You can't break blocks in CheckPointAddMode.");
+            } else {
+                p.sendMessage(Main.getPrefix()+"§4You can't break blocks in CheckPointAddMode.");
                 event.setCancelled(true);
             }
         }
@@ -58,16 +58,16 @@ public class CheckPointListener implements Listener {
     private void addCheckpoint(Player p, Location loc) {
         String mapName = playersAddCheckpointMode.get(p);
         if (destinationManager.checkPointExists(mapName, loc)) {
-            p.sendMessage("§4Checkpoint already exists.");
+            p.sendMessage(Main.getPrefix()+"§4Checkpoint already exists.");
         } else {
             destinationManager.createNewCheckPoint(mapName, loc);
-            p.sendMessage("§aCheckpoint successfully set.");
+            p.sendMessage(Main.getPrefix()+"§aCheckpoint successfully set.");
         }
     }
 
     private void removeCheckPoint(Player p, Location loc) {
         String mapName = playersAddCheckpointMode.get(p);
         destinationManager.removeCheckPoint(mapName, loc);
-        p.sendMessage("§aCheckpoint successfully removed.");
+        p.sendMessage(Main.getPrefix()+"§aCheckpoint successfully removed.");
     }
 }

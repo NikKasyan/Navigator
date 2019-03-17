@@ -3,7 +3,7 @@ version: 1.0
 author: Saith
 main: de.mcharvest.saith.Main
 commands:
-  location:
+  destination:
 permissions:
   navigator.destination.set:
     default: op

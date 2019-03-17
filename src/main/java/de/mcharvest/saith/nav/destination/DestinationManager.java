@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,9 +19,21 @@ public class DestinationManager implements IDestinationManager {
         createDefaultDirectory();
     }
 
+    @Override
+    public void createNewMap(String mapName) {
+        File mapDir = new File(defaultDir + "/" + mapName);
+        mapDir.mkdirs();
+    }
+
+    @Override
+    public boolean mapExists(String mapName) {
+        File mapDir = new File(defaultDir + "/" + mapName);
+        return mapDir.exists();
+    }
+
     //Creates a new Location by saving the current Player location into a YAML File.
-    public void createNewDestination(String locationName, Location loc) {
-        File locationFile = getDestinationFile(locationName);
+    public void createNewDestination(String mapName, String locationName, Location loc) {
+        File locationFile = getDestinationFile(mapName, locationName);
         try {
             createLocationYml(locationFile, loc);
         } catch (IOException e) {
@@ -29,9 +42,9 @@ public class DestinationManager implements IDestinationManager {
     }
 
 
-    public void createNewCheckPoint(Location loc) {
+    public void createNewCheckPoint(String mapName, Location loc) {
         String checkpointName = generateCheckPointName(loc);
-        File checkPointFile = getCheckPointFile(checkpointName);
+        File checkPointFile = getCheckPointFile(mapName, checkpointName);
         try {
             createLocationYml(checkPointFile, loc);
         } catch (IOException e) {
@@ -39,9 +52,9 @@ public class DestinationManager implements IDestinationManager {
         }
     }
 
-    public Location[] getAllLocations() {
-        Location[] checkPoints = getCheckpoints();
-        Location[] destinations = getDestinations();
+    public Location[] getAllLocations(String mapName) {
+        Location[] checkPoints = getCheckpoints(mapName);
+        Location[] destinations = getDestinations(mapName);
         ArrayList<Location> all = new ArrayList<>();
         Collections.addAll(all, destinations);
         Collections.addAll(all, checkPoints);
@@ -49,48 +62,75 @@ public class DestinationManager implements IDestinationManager {
         return all.toArray(Location[]::new);
     }
 
-    public Location[] getCheckpoints() {
-        File checkpointDir = new File(defaultDir + "/Checkpoints/");
-        return getLocationsInDir(checkpointDir);
+    public Location[] getCheckpoints(String mapName) {
+        return getLocationsInDir(getCheckPointDir(mapName));
     }
 
-    public Location[] getDestinations() {
-        File destinationDir = new File(defaultDir + "/Destinations/");
+    public Location[] getDestinations(String mapName) {
+        File destinationDir = getDestinationDir(mapName);
         return getLocationsInDir(destinationDir);
     }
 
     private Location[] getLocationsInDir(File dir) {
         ArrayList<Location> locations = new ArrayList<>();
         for (File checkPointFile : dir.listFiles()) {
-            locations.add(getLocation(checkPointFile));
+            if (checkPointFile != null)
+                locations.add(getLocation(checkPointFile));
         }
         return locations.toArray(Location[]::new);
     }
 
 
-    public boolean destinationExists(String destinationName) {
-        File locationFile = getDestinationFile(destinationName);
+    public boolean destinationExists(String mapName, String destinationName) {
+        File locationFile = getDestinationFile(mapName, destinationName);
         return locationFile.exists();
     }
 
-    public boolean checkPointExists(Location loc) {
-        return checkPointExists(generateCheckPointName(loc));
+    public boolean checkPointExists(String mapName, Location loc) {
+        return checkPointExists(mapName, generateCheckPointName(loc));
     }
 
-    private boolean checkPointExists(String checkPointName) {
-        File checkPointFile = getCheckPointFile(checkPointName);
+    @Override
+    public void removeMap(String mapName) {
+        File mapDir = new File(defaultDir + "/" + mapName);
+        mapDir.delete();
+    }
+
+    @Override
+    public void removeDestination(String mapName, String destinationName) {
+        getDestinationFile(mapName, destinationName).delete();
+    }
+
+    @Override
+    public void removeCheckPoint(String mapName, Location loc) {
+        getCheckPointFile(mapName, generateCheckPointName(loc)).delete();
+    }
+
+    private boolean checkPointExists(String mapName, String checkPointName) {
+        File checkPointFile = getCheckPointFile(mapName, checkPointName);
         return checkPointFile.exists();
     }
 
-    public Location getDestinationLocation(String destinationName) {
-        File destinationFile = getDestinationFile(destinationName);
+    public Location getDestinationLocation(String mapName, String destinationName) {
+        File destinationFile = getDestinationFile(mapName, destinationName);
         return getLocation(destinationFile);
     }
 
     @Override
-    public String[] getDestinationsName() {
-        File destinationDir = new File(defaultDir + "/Destinations/");
+    public String[] getDestinationNames(String mapName) {
+        File destinationDir = getDestinationDir(mapName);
         return destinationDir.list();
+    }
+
+    @Override
+    public String[] getMapNames() {
+        return defaultDir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+
+                return !name.contains(".");
+            }
+        });
     }
 
     private void createLocationYml(File ymlFile, Location loc) throws IOException {
@@ -118,12 +158,12 @@ public class DestinationManager implements IDestinationManager {
 
     }
 
-    private File getDestinationFile(String destinationName) {
-        return new File(defaultDir + "/Destinations/" + destinationName + ".yml");
+    private File getDestinationFile(String mapName, String destinationName) {
+        return new File(getDestinationDir(mapName) + "/" + destinationName + ".yml");
     }
 
-    private File getCheckPointFile(String checkPointName) {
-        return new File(defaultDir + "/Checkpoints/" + checkPointName + ".yml");
+    private File getCheckPointFile(String mapName, String checkPointName) {
+        return new File(getCheckPointDir(mapName) + "/" + checkPointName + ".yml");
     }
 
 
@@ -136,5 +176,19 @@ public class DestinationManager implements IDestinationManager {
     private void createDefaultDirectory() {
         if (!defaultDir.exists())
             defaultDir.mkdirs();
+    }
+
+    private File getCheckPointDir(String mapName) {
+        File checkPointDir = new File(defaultDir + "/" + mapName + "/Checkpoints/");
+        if (!checkPointDir.exists())
+            checkPointDir.mkdirs();
+        return checkPointDir;
+    }
+
+    private File getDestinationDir(String mapName) {
+        File destinationDir = new File(defaultDir + "/" + mapName + "/Destinations/");
+        if (!destinationDir.exists())
+            destinationDir.mkdirs();
+        return destinationDir;
     }
 }
