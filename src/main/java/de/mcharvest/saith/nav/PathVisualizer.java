@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PathVisualizer {
-    private static HashMap<Player, Integer> tasks = new HashMap<>();
 
+    //Creates a
     public static void showGraphToPlayer(Player p, Vertex[] path) {
         Navigator.showPathToTravel(p, path, (vertices, adjacencyMatrix) -> {
             int closest = Navigator.getClosestCheckpointIndex(p.getLocation(), vertices);
@@ -27,11 +27,13 @@ public class PathVisualizer {
         });
     }
 
+    //Displays the Distance on the ActionBar for the Player
     private static void sendDistanceInfo(Player p, ArrayList<Vertex> vertices) {
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("§aDistance %.2fm", getDistance(p, vertices))));
 
     }
 
+    //Gets the total distance of all vertices and the Player
     private static double getDistance(Player p, ArrayList<Vertex> vertices) {
         double sum = 0;
         for (int i = 1; i < vertices.size() - 1; i++) {
@@ -45,7 +47,7 @@ public class PathVisualizer {
         p.sendMessage(NavigatorPlugin.getPrefix()+"§aYou have arrived at your destination.");
     }
 
-    //Draws the path to the different Vertices
+    //Draws the path with particle for the Player
     private static void drawPathToVertices(ArrayList<Vertex> vertices, Player p, boolean[][] adjacencyMatrix) {
         for (int i = 0; i < vertices.size(); i++)
             for (int j = i + 1; j < vertices.size(); j++) {
@@ -55,14 +57,13 @@ public class PathVisualizer {
                             adjacencyMatrix[i][j] = adjacencyMatrix[j][i] = false;
                         }
                         drawLineForPlayer(p, vertices.get(i).getLocation(), vertices.get(j).getLocation(), 0.1);
-                    } else {
-                        Bukkit.getScheduler().cancelTask(tasks.get(p));
                     }
                 }
             }
     }
 
-
+    //Draws a Particle line from point1 to point2 which only the
+    //given Player can see
     public static void drawLineForPlayer(Player p, Location point1, Location point2, double space) {
         point1 = point1.getBlock().getLocation().add(0.5, 0, 0.5);
         point2 = point2.getBlock().getLocation().add(0.5, 0, 0.5);
@@ -79,8 +80,8 @@ public class PathVisualizer {
         }
     }
 
+    //Shows the Path as a block trail
     public static void showBlocksToPlayer(Player p, Vertex[] path) {
-
         Navigator.showPathToTravel(p, path, (vertices, adjacencyMatrix) -> {
             removeClosestVertexInRange(p.getLocation(),vertices,3);
             for(Vertex vertex:path){
@@ -96,6 +97,7 @@ public class PathVisualizer {
             }
         });
     }
+    //Removes the closest Vertex if it is in the direct range of the Location
     private static void removeClosestVertexInRange(Location loc, ArrayList<Vertex> vertices, int range){
         int closest = Navigator.getClosestCheckpointIndex(loc, vertices);
         if (vertices.get(closest).getLocation().distance(loc) <= range) {

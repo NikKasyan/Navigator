@@ -35,6 +35,11 @@ public class AnimalCap {
                     }
 
                     entityInsentient.getNavigation().a(locClosest.getX(), locClosest.getY(), locClosest.getZ(), 1.0);
+                    if(entity.getPassengers().isEmpty()){
+                       entity.remove();
+                       p.sendMessage(NavigatorPlugin.getPrefix()+"§4You have cancelled the ride.");
+                       Navigator.cancelTask(p);
+                    }
 
                 }, () -> {
                     entity.remove();

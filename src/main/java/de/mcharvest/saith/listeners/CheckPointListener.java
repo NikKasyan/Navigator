@@ -55,6 +55,7 @@ public class CheckPointListener implements Listener {
         placedBlocks.put(p, new ArrayList<>());
     }
 
+    //Removes all placed Goldblocks
     public static void disableCheckpointEditMode(Player p) {
         playersEditCheckpointMode.remove(p);
 

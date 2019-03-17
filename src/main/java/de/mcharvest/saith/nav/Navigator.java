@@ -64,13 +64,20 @@ public class Navigator {
 
             } catch (IndexOutOfBoundsException e) {
                 arrivedAtDestination.run();
-                Bukkit.getScheduler().cancelTask(tasks.get(p));
+                cancelTask(p);
+            }catch (Exception e){
+                cancelTask(p);
             }
 
         }, 0, 10);
         tasks.put(p, task);
     }
 
+    public static void cancelTask(Player p){
+        if(tasks.containsKey(p)){
+            Bukkit.getScheduler().cancelTask(tasks.get(p));
+        }
+    }
 
     public Vertex[] findShortestPath(Location start, Location destination) {
         int closestCheckpointIndex = getClosestCheckPointIndex(start);
@@ -112,7 +119,9 @@ public class Navigator {
         }
         return adjacencyMatrix;
     }
-
+    //Technically the same as the adjacency matrix
+    //If two vertices are connected they have a finite distance
+    //if not they have an infinite distance
     private double[][] generateDistanceMatrix() {
         double[][] distanceMatrix = new double[adjacencyMatrix.length][adjacencyMatrix.length];
         for (int i = 0; i < adjacencyMatrix.length; i++) {
