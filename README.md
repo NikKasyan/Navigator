@@ -35,8 +35,18 @@ If you want to leave the CheckPointAddMode enter:
    ```
    /destination add <mapName>
    ```
-After reloading/restarting your Server
-you can show the path to a given Destination with Particles:
+If you havent enabled the auto_reload option in the config.
+You have to issue the following command(you can reload every map by simply removing the mapName argument) 
+```
+/destination reload [mapName]
+```
+If you want to check if every destination is close enough to a checkpoint, you can show all checkpoints and destinations
+as blocks
+ ```
+ /destination show <mapName>
+ ```
+ All GoldBlocks are Checkpoints and all DiamondBlocks are Destinations.
+You can show the path to a given Destination with Particles:
    ```
    /destination find <mapName> <destinationName>
    ```
@@ -48,7 +58,6 @@ or if you are lazy you can ride on a pig
    ```
    /destination ride <mapName> <destinationName>
    ```
-
 My advice is that you should place enough Checkpoints because if 
 the MaxDistanceBetweenPoints option is set to low the plugin might
 not find a path to your desired destination.
