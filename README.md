@@ -69,3 +69,7 @@ Then I build an Adjacencymatrix of the vertices by collecting all vertices in a 
 Out of the Adjacencymatrix I can built a list of edges.
 Then I use the Dijkstra Algorithm to find the shortest path from a source vertex to every other vertex.
 And thats it.
+## What is the runtime?
+The runtime is pretty low. For 36 Checkpoints and 6 Destinations it takes about 0.5 - 1 ms.
+## Known Bugs
+There is just one "bug" that I know. Its that if the player moves way the fast(flying) the system gets a bit confused on which checkpoints have to be removed.
