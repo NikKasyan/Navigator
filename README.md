@@ -72,4 +72,4 @@ And thats it.
 ## What is the runtime?
 The runtime is pretty low. For 36 Checkpoints and 6 Destinations it takes about 0.5 - 1 ms.
 ## Known Bugs
-There is just one "bug" that I know. Its that if the player moves way too fast(flying) the system gets a bit confused on which checkpoints have to be removed.
+There is just one "bug" that I am aware of. It's that if a player moves way too fast(flying) the system gets a bit confused on which checkpoints have to be removed.
