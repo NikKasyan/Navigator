@@ -23,6 +23,9 @@ public class CheckPointListener implements Listener {
     //Remembers the placedBlocks
     private static HashMap<Player, ArrayList<Block>> placedBlocks = new HashMap<>();
 
+    private Block block1;
+    private Block block2;
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player p = event.getPlayer();

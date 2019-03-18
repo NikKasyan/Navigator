@@ -65,7 +65,7 @@ public class Navigator {
             } catch (IndexOutOfBoundsException e) {
                 arrivedAtDestination.run();
                 cancelTask(p);
-            }catch (Exception e){
+            } catch (Exception e) {
                 cancelTask(p);
             }
 
@@ -73,8 +73,8 @@ public class Navigator {
         tasks.put(p, task);
     }
 
-    public static void cancelTask(Player p){
-        if(tasks.containsKey(p)){
+    public static void cancelTask(Player p) {
+        if (tasks.containsKey(p)) {
             Bukkit.getScheduler().cancelTask(tasks.get(p));
         }
     }
@@ -119,6 +119,7 @@ public class Navigator {
         }
         return adjacencyMatrix;
     }
+
     //Technically the same as the adjacency matrix
     //If two vertices are connected they have a finite distance
     //if not they have an infinite distance
@@ -143,13 +144,15 @@ public class Navigator {
     public void showGraphToPlayer(Player p) {
         PathVisualizer.showGraphToPlayer(p, checkpoints);
     }
-    public void showBlockGraphToPlayer(Player p, Location[] destinations, Location[] checkpoints){
-        for(Location loc:destinations){
+
+    public void showBlockGraphToPlayer(Player p, Location[] destinations, Location[] checkpoints) {
+        for (Location loc : destinations) {
             p.sendBlockChange(loc, Material.DIAMOND_BLOCK.createBlockData());
         }
-        for(Location loc:checkpoints){
+        for (Location loc : checkpoints) {
             p.sendBlockChange(loc, Material.GOLD_BLOCK.createBlockData());
         }
+
     }
 
 
@@ -167,12 +170,12 @@ public class Navigator {
 
     private int getClosestCheckPointIndex(Location loc) {
         ArrayList<Vertex> vertices = new ArrayList<>();
-        Collections.addAll(vertices,checkpoints);
-       return getClosestCheckpointIndex(loc, vertices);
+        Collections.addAll(vertices, checkpoints);
+        return getClosestCheckpointIndex(loc, vertices);
     }
 
     public static int getClosestCheckpointIndex(Location loc, ArrayList<Vertex> checkpoints) {
-        int index = 0;
+        int index = -1;
         double minimumDistance = Double.POSITIVE_INFINITY;
         for (int i = 0; i < checkpoints.size(); i++) {
             if (checkpoints.get(i) == null)

@@ -80,7 +80,7 @@ public class DestinationCommand implements CommandExecutor {
                     showBlockGraphToPlayer(p,
                             destinationManager.getDestinations(mapName),
                             destinationManager.getCheckpoints(mapName));
-            p.sendMessage(NavigatorPlugin.getPrefix()+"§aThis is the Layout of your Map.");
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§aThis is the Layout of your Map.");
         }
     }
 
