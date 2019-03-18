@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class NavigatorPlugin extends JavaPlugin {
 
     private static NavigatorPlugin INSTANCE;
-    private final IDestinationManager destinationManager = new DestinationManager("plugins/Navigator/");
+    private final IDestinationManager destinationManager = new DestinationManager(getDataFolder());
     private static NavigatorConfig config;
     private NavigationManager navigationManager;
 

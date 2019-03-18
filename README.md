@@ -6,7 +6,7 @@ First of all you have to create a Map.
    ```
    /destination create <mapName>
    ```
-If you are not satisfied with the mapname you can easily remove it.
+If you are not satisfied with the mapName you can easily remove it.
    ```
    /destination remove <mapName>
    ```
@@ -24,18 +24,18 @@ If you ever forget the name of a destination.
    ```
 After you added your destination the most important step comes.
 The addition of the checkpoints. Checkpoints are the points which connects
-different destinations with each other. So to add checkpoints.
+different destinations with each other. So to edit checkpoints.
    ```
-   /destination add <mapName>
+   /destination edit <mapName>
    ```
-After you entered this command you are in the CheckPointAddMode, this means if
+After you entered this command you are in the EditCheckPointMode, this means if
 you place a GoldBlock on the ground a new Checkpoint is created. If you remove
-this block in the CheckPointAddMode the Checkpoint is removed.
-If you want to leave the CheckPointAddMode enter:
+this block in the EditCheckPointMode the Checkpoint is removed.
+If you want to leave the EditCheckPointMode enter:
    ```
-   /destination add <mapName>
+   /destination edit
    ```
-If you havent enabled the auto_reload option in the config.
+If you haven't enabled the auto_reload option in the config.
 You have to issue the following command(you can reload every map by simply removing the mapName argument) 
 ```
 /destination reload [mapName]
@@ -65,8 +65,8 @@ not find a path to your desired destination.
 You are wondering how my Plugin works.
 It is pretty easy.
 I simply convert the locations into vertices.
-Then I build an Adjacencymatrix of the vertices by collecting all vertices in a certain range of another vertex.
-Out of the Adjacencymatrix I can built a list of edges.
+Then I build an Adjacency matrix of the vertices by collecting all vertices in a certain range of another vertex.
+Out of the Adjacency matrix I can built a list of edges.
 Then I use the Dijkstra Algorithm to find the shortest path from a source vertex to every other vertex.
 And thats it.
 ## What is the runtime?

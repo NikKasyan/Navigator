@@ -15,9 +15,13 @@ import java.util.UUID;
 public class DestinationManager implements IDestinationManager {
     private final File defaultDir;
 
-    public DestinationManager(String defaultDirPath) {
-        this.defaultDir = new File(defaultDirPath);
+    public DestinationManager(File defaultDir) {
+        this.defaultDir = defaultDir;
         createDefaultDirectory();
+    }
+
+    public DestinationManager(String defaultDirPath) {
+        this(new File(defaultDirPath));
     }
 
     @Override

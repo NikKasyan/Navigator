@@ -1,5 +1,6 @@
 package de.mcharvest.saith.config;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.lang.reflect.Field;
@@ -19,10 +20,14 @@ public class NavigatorConfig {
     }
 
     private void mapYamlToObject(FileConfiguration cfg) throws IllegalAccessException {
-        Class<NavigatorConfig> clazz = (Class<NavigatorConfig>) this.getClass();
+        Class<? extends NavigatorConfig> clazz =  this.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
-            field.set(this, cfg.get(field.getName(), null));
+            Object obj = cfg.get(field.getName(), null);
+            if(obj instanceof String){
+                obj = ChatColor.translateAlternateColorCodes('&',obj.toString());
+            }
+            field.set(this, obj);
         }
     }
 }

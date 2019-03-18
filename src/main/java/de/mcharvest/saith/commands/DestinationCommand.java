@@ -4,7 +4,6 @@ import de.mcharvest.saith.NavigatorPlugin;
 import de.mcharvest.saith.listeners.CheckPointListener;
 import de.mcharvest.saith.nav.AnimalCap;
 import de.mcharvest.saith.nav.NavigationManager;
-import de.mcharvest.saith.nav.Navigator;
 import de.mcharvest.saith.nav.PathVisualizer;
 import de.mcharvest.saith.nav.destination.IDestinationManager;
 import de.mcharvest.saith.nav.dijkstra.Vertex;
@@ -42,13 +41,13 @@ public class DestinationCommand implements CommandExecutor {
                 if (p.hasPermission("navigator.destination.set")) {
                     setDestination(p, args);
                 }
-            } else if (args[0].equalsIgnoreCase("add")) {
-                if (p.hasPermission("navgator.destination.add")) {
+            } else if (args[0].equalsIgnoreCase("edit")) {
+                if (p.hasPermission("navigator.destination.edit")) {
                     checkPointEdit(p, args);
                 }
             } else if (args[0].equalsIgnoreCase("find") ||
                     args[0].equalsIgnoreCase("findblock")) {
-                if (p.hasPermission("navgator.destination.find")) {
+                if (p.hasPermission("navigator.destination.find")) {
                     showRoute(p, args);
                 }
             } else if (args[0].equalsIgnoreCase("ride")) {
@@ -132,7 +131,7 @@ public class DestinationCommand implements CommandExecutor {
     private void checkPointEdit(Player p, String[] args) {
         if (CheckPointListener.isInCheckpointEditMode(p)) {
             CheckPointListener.disableCheckpointEditMode(p);
-            p.sendMessage(NavigatorPlugin.getPrefix() + "§4CheckPointEditMode disabled.");
+            p.sendMessage(NavigatorPlugin.getPrefix() + "§4EditCheckPointMode disabled.");
             p.sendMessage(NavigatorPlugin.getPrefix() + "§4All placed GoldBlocks have been removed.");
             if (NavigatorPlugin.getNavConfig().auto_reload) {
                 reloadNavigationManager(p, args);
@@ -144,7 +143,7 @@ public class DestinationCommand implements CommandExecutor {
                     p.sendMessage(NavigatorPlugin.getPrefix() + "§4Map doesn't exists.");
                 } else {
                     CheckPointListener.enableCheckpointEditMode(p, mapName);
-                    p.sendMessage(NavigatorPlugin.getPrefix() + "§aCheckPointEditMode enabled.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§aEditCheckPointMode enabled.");
                 }
 
             }
@@ -184,7 +183,7 @@ public class DestinationCommand implements CommandExecutor {
         p.sendMessage(NavigatorPlugin.getPrefix() + "§4Wrong command syntax.");
     }
 
-    //Creates a new Location if it doesn't exist
+    //Creates a new Destination if it doesn't exist
     private void setDestination(Player p, String[] args) {
         if (args.length == 3) {
             String mapName = args[1];
@@ -205,6 +204,7 @@ public class DestinationCommand implements CommandExecutor {
     }
 
 
+    //Shows the route to the wanted destination either as particle line or as blocks
     private void showRoute(Player p, String[] args) {
         if (args.length == 3) {
             String mapName = args[1];
@@ -215,7 +215,7 @@ public class DestinationCommand implements CommandExecutor {
             } else {
                 Vertex[] path = getPath(p, mapName, destinationName);
                 if (path == null) {
-                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldnt find a path to your desired destination.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldn't find a path to your desired destination.");
                     p.sendMessage(NavigatorPlugin.getPrefix() + "§4The destination §6" + destinationName + " §4has insufficient checkpoints.");
                     return;
                 }
@@ -230,6 +230,7 @@ public class DestinationCommand implements CommandExecutor {
         }
     }
 
+    //A pig brings you to your wanted Location
     private void ridePigToDestination(Player p, String[] args) {
         if (args.length == 3) {
             String mapName = args[1];
@@ -240,7 +241,7 @@ public class DestinationCommand implements CommandExecutor {
             } else {
                 Vertex[] path = getPath(p, mapName, destinationName);
                 if (path == null) {
-                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldnt find a path to your desired destination.");
+                    p.sendMessage(NavigatorPlugin.getPrefix() + "§4Sorry. But I couldn't find a path to your desired destination.");
                     return;
                 }
                 AnimalCap.rideEntityToDestination(p, path, Pig.class);
